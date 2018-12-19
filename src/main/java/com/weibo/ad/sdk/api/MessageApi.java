@@ -27,26 +27,27 @@ public class MessageApi extends AbstractApi
         super(api);
     }
 
-    public String lists(int type, String keyword, String startTime, String endTime, int page, int pageSize) throws
+    public String lists(int type,  int page, int pageSize) throws
             ApiException,
             IOException {
-        String scheme = URI_LIST .concat( "?page=" + page + "&page_size=" + pageSize + "&start_time=" + startTime +
-                "&end_time=" + endTime + "&type=" + type + "&keyword=" + keyword);
+        String scheme = URI_LIST .concat( "?page=" + page + "&page_size=" + pageSize + "&type=" + type + "&source=SFST");
         return  api.getApiRequest().call(scheme);
     }
 
     public String count(String startTime) throws  ApiException, IOException {
-        String scheme = URI_COUNT .concat( "?start_time=" + startTime);
+        String scheme = URI_COUNT .concat( "?source=SFST&start_time=" + startTime);
         return  api.getApiRequest().call(scheme);
     }
 
     public String read(int id) throws  ApiException, IOException {
         Map<String, String> params = new HashMap<>();
+        params.put("source", "SFST");
         return api.getApiRequest().call(String.format(URI_READ, id), "PUT", params);
     }
 
     public String readAll() throws  ApiException, IOException {
         Map<String, String> params = new HashMap<>();
+        params.put("source", "SFST");
         return api.getApiRequest().call(URI_READ_ALL, "PUT", params);
     }
 }

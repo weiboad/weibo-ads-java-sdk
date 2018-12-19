@@ -29,7 +29,7 @@ public class CreativeApiTest
 
     @Test
     public void read() throws Exception {
-        EasyMock.expect(apiRequest.call("/creatives/info/1")).andReturn("{\"id\" : 1}");
+        EasyMock.expect(apiRequest.call("/creatives/1")).andReturn("{\"id\" : 1}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         CreativeApi creativeApi = new CreativeApi(api);
@@ -55,7 +55,7 @@ public class CreativeApiTest
 
     @Test
     public void lists() throws Exception {
-        EasyMock.expect(apiRequest.call("/creatives/search?page=1&page_size=10&name=creative_title")).andReturn
+        EasyMock.expect(apiRequest.call("/creatives?page=1&page_size=10&name=creative_title")).andReturn
                 ("{\"list\":{\"id\" : 1}}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
@@ -68,9 +68,8 @@ public class CreativeApiTest
     @Test
     public void update() throws Exception {
         Map<String, String> params = new HashMap<>();
-        params.put("update_status", "1");
         params.put("status", CreativeConfiguredStatusConstant.PAUSE);
-        EasyMock.expect(apiRequest.call("/creatives/1", "PUT", params)).andReturn("{\"id\":1, "
+        EasyMock.expect(apiRequest.call("/creatives/status/1", "PUT", params)).andReturn("{\"id\":1, "
                 + "\"name\":\"creative_title2\", \"configured_status\":0}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest).times(1);
         EasyMock.replay(api, apiRequest);

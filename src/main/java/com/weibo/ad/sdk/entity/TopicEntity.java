@@ -8,6 +8,7 @@ public class TopicEntity
 
     private String follow;
 
+    @JSONField(name = "topic_name")
     private String topicName;
 
     public String getId() {

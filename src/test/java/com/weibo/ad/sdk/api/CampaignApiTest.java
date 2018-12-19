@@ -26,7 +26,7 @@ public class CampaignApiTest
 
     @Test
     public void read() throws Exception {
-        EasyMock.expect(apiRequest.call("/campaigns/info/1")).andReturn("{\"id\" : 1}");
+        EasyMock.expect(apiRequest.call("/campaigns/1")).andReturn("{\"id\" : 1}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         CampaignApi campaignApi = new CampaignApi(api);
@@ -36,12 +36,12 @@ public class CampaignApiTest
     }
     @Test
     public void lists() throws Exception {
-        EasyMock.expect(apiRequest.call("/campaigns/search?page=1&page_size=10&name=campaign_title")).andReturn
+        EasyMock.expect(apiRequest.call("/campaigns?page=1&page_size=10&name=campaign_title")).andReturn
                 ("{\"list\":{\"id\" : 1}}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         CampaignApi campaignApi = new CampaignApi(api);
-        CampaignModel campaignModel = campaignApi.lists("campaign_title", -1, -1,  -1, 1, 10);
+        CampaignModel campaignModel = campaignApi.lists(0, null, "campaign_title", -1, -1,  -1, 1, 10);
         assertEquals(Integer.valueOf(1), campaignModel.getList().get(0).getId());
         EasyMock.verify(api, apiRequest);
     }
@@ -89,17 +89,15 @@ public class CampaignApiTest
     public void updateStatus() throws Exception {
 
         Map<String, String> params = new HashMap<>();
-        params.put("update_status", "1");
-        params.put("configured_status", String.valueOf(ConfiguredStatusConstant.PAUSE));
-
-        EasyMock.expect(apiRequest.call("/campaigns/1", "PUT", params)).andReturn("{\"id\":1, "
-                + "\"name\":\"campaign_title2\", \"configured_status\":0}");
+        params.put("status", "0");
+        EasyMock.expect(apiRequest.call("/campaigns/status/1", "PUT", params)).andReturn("{\"list\":[{\"id\":1, "
+                + "\"name\":\"campaign_title2\", \"configured_status\":0}]}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest).times(1);
         EasyMock.replay(api, apiRequest);
 
         CampaignApi campaignApi = new CampaignApi(api);
-        CampaignEntity campaign = campaignApi.update(1, ConfiguredStatusConstant.PAUSE);
-        assertEquals(ConfiguredStatusConstant.PAUSE, campaign.getConfiguredStatus());
+        CampaignModel campaign = campaignApi.update(1, ConfiguredStatusConstant.PAUSE);
+        assertEquals(ConfiguredStatusConstant.PAUSE, campaign.getList().get(0).getConfiguredStatus());
         EasyMock.verify(api, apiRequest);
     }
 

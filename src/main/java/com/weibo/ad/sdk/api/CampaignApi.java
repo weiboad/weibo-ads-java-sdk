@@ -8,16 +8,18 @@ import com.weibo.ad.sdk.entity.CampaignEntity;
 import com.weibo.ad.sdk.exception.ApiException;
 import com.weibo.ad.sdk.model.CampaignModel;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CampaignApi extends AbstractApi
 {
-    private static final String URI_READING = "/campaigns/info/%d";
-    private static final String URI_LIST    = "/campaigns/search";
+    private static final String URI_READING = "/campaigns/%d";
+    private static final String URI_LIST    = "/campaigns";
     private static final String URI_CREATE  = "/campaigns";
     private static final String URI_UPDATE  = "/campaigns/%d";
     private static final String URI_DELETE  = "/campaigns/%d";
+    private static final String URI_UPDATE_STATUS  = "/campaigns/status/%d";
 
     public CampaignApi(Api api) {
         super(api);
@@ -28,9 +30,15 @@ public class CampaignApi extends AbstractApi
         return JSON.parseObject(data, CampaignEntity.class);
     }
 
-    public CampaignModel lists(String name, int objective, float lifetimeBudget,
+    public CampaignModel lists(int id, int[] ids, String name, int objective, float lifetimeBudget,
             int guaranteedDelivery, int page, int pageSize) throws   ApiException, IOException{
         String scheme = URI_LIST .concat( "?page=" + page + "&page_size=" + pageSize);
+        if (id > 0) {
+            scheme +="&id=" + id;
+        }
+        if (ids != null && ids.length > 0) {
+            scheme += "ids=" + ids;
+        }
         if (!name.equals("")) {
             scheme +="&name=" + name;
         }
@@ -55,12 +63,11 @@ public class CampaignApi extends AbstractApi
         return JSON.parseObject(data, CampaignEntity.class);
     }
 
-    public CampaignEntity update(int campaignId, int status) throws  ApiException, IOException {
+    public CampaignModel update(int campaignId, int status) throws  ApiException, IOException {
         Map<String, String> params = new HashMap<>();
-        params.put("update_status", "1");
-        params.put("configured_status", String.valueOf(status));
-        String data = api.getApiRequest().call(String.format(URI_UPDATE, campaignId), "PUT", params);
-        return JSON.parseObject(data, CampaignEntity.class);
+        params.put("status", String.valueOf(status));
+        String data = api.getApiRequest().call(String.format(URI_UPDATE_STATUS, campaignId), "PUT", params);
+        return JSON.parseObject(data, CampaignModel.class);
     }
 
     public CampaignEntity update(CampaignEntity campaign) throws  ApiException, IOException, IllegalAccessException{
@@ -73,6 +80,6 @@ public class CampaignApi extends AbstractApi
         String scheme = String.format(URI_DELETE, id);
         String data = api.getApiRequest().call(scheme, "DELETE");
         return JSON.parseObject(data, new TypeReference<HashMap<String, String>>(){});
-    }
+}
 
 }

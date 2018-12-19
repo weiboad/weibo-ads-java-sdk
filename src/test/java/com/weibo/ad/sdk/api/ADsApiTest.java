@@ -31,7 +31,7 @@ public class ADsApiTest
 
     @Test
     public void read() throws Exception {
-        EasyMock.expect(apiRequest.call("/ads/info/1")).andReturn("{\"id\" : 1}");
+        EasyMock.expect(apiRequest.call("/ads/1")).andReturn("{\"id\" : 1}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         ADsApi aDsApi = new ADsApi(api);
@@ -42,13 +42,13 @@ public class ADsApiTest
 
     @Test
     public void lists() throws Exception {
-        EasyMock.expect(apiRequest.call("/ads/search?page=1&page_size=10&name=ad_title")).andReturn
+        EasyMock.expect(apiRequest.call("/ads?page=1&page_size=10&name=ad_title")).andReturn
                 ("{\"list\" : "
                 + "{\"id\" : 1}}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         ADsApi aDsApi = new ADsApi(api);
-        ADsModel aDsModel = aDsApi.lists("ad_title", 0, 0, 0, -1, "0", 1, 10);
+        ADsModel aDsModel = aDsApi.lists("ad_title", 0, 0, null, 0, null, null, -1, null, 1, 10);
         assertEquals(Integer.valueOf(1), aDsModel.getList().get(0).getId());
         EasyMock.verify(api, apiRequest);
     }
@@ -81,20 +81,14 @@ public class ADsApiTest
 
         Map<String, String> params = new HashMap<>();
         params.put("id", String.valueOf(1));
-        params.put("configured_status", String.valueOf(ConfiguredStatusConstant.PAUSE));
 
         EasyMock.expect(apiRequest.call("/ads/1", "PUT", adEntity)).andReturn("{\"id\":1, \"name\":\"ad_title2\"}");
-        EasyMock.expect(apiRequest.call("/ads/updatestatus", "POST", params)).andReturn("{\"list\" : {\"id\":1, "
-                + "\"name\":\"ad_title2\", \"configured_status\":0}}");
-        EasyMock.expect(api.getApiRequest()).andReturn(apiRequest).times(2);
+        EasyMock.expect(api.getApiRequest()).andReturn(apiRequest).times(1);
         EasyMock.replay(api, apiRequest);
 
         ADsApi aDsApi = new ADsApi(api);
         ADsEntity ad = aDsApi.update(adEntity);
         assertEquals("ad_title2", ad.getName());
-
-        ADsModel aDsModel = aDsApi.update(1, ConfiguredStatusConstant.PAUSE);
-        assertEquals(ConfiguredStatusConstant.PAUSE, aDsModel.getList().get(0).getConfiguredStatus());
         EasyMock.verify(api, apiRequest);
     }
 
@@ -113,8 +107,8 @@ public class ADsApiTest
 
     @Test
     public void topic() throws Exception {
-        EasyMock.expect(apiRequest.call("/ads/topic")).andReturn("{\"list\":[{\"follow\":123,\"id\":\"id111\","
-                + "\"topicName\":\"王源\"}]}");
+        EasyMock.expect(apiRequest.call("/ads/topic-search")).andReturn("{\"list\":[{\"follow\":123,\"id\":\"id111\","
+                + "\"topic_name\":\"王源\"}]}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         ADsApi aDsApi = new ADsApi(api);
@@ -139,12 +133,12 @@ public class ADsApiTest
 
     @Test
     public void designatedAccount() throws Exception {
-        EasyMock.expect(apiRequest.call("/ads/designated-account")).andReturn
+        EasyMock.expect(apiRequest.call("/ads/designated-account?keyword=test&objective=88010001")).andReturn
                 ("{\"list\":[{\"profile_image_url\":\"http://test.com/1.jpg\"}]}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         ADsApi aDsApi = new ADsApi(api);
-        Map<String, ArrayList<DesignatedAccountEntity>> da = aDsApi.designatedAccount("");
+        Map<String, ArrayList<DesignatedAccountEntity>> da = aDsApi.designatedAccount("test", 88010001);
         ArrayList<DesignatedAccountEntity> accounts = da.get("list");
         assertNotNull(accounts.get(0).getProfileImageUrl());
         EasyMock.verify(api, apiRequest);

@@ -12,7 +12,7 @@ public class TargetingEntity
 
     private String name;
 
-    private ArrayList<String> $accurateInterests;
+    private ArrayList<String> accurateInterests;
 
     @JSONField(name = "ad_id")
     private Integer adId;
@@ -92,12 +92,12 @@ public class TargetingEntity
         this.name = name;
     }
 
-    public ArrayList<String> get$accurateInterests() {
-        return $accurateInterests;
+    public ArrayList<String> getAccurateInterests() {
+        return accurateInterests;
     }
 
-    public void set$accurateInterests(ArrayList<String> $accurateInterests) {
-        this.$accurateInterests = $accurateInterests;
+    public void setAccurateInterests(ArrayList<String> accurateInterests) {
+        this.accurateInterests = accurateInterests;
     }
 
     public Integer getAdId() {

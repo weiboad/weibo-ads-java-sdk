@@ -27,7 +27,7 @@ public class AppApiTest {
 
     @Test
     public void lists() throws Exception {
-        EasyMock.expect(apiRequest.call("/app/list?page=1&page_size=10")).andReturn("{\"page\" : 1}");
+        EasyMock.expect(apiRequest.call("/apps?page=1&page_size=10")).andReturn("{\"page\" : 1}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         AppApi appApi = new AppApi(api);
@@ -36,25 +36,15 @@ public class AppApiTest {
         EasyMock.verify(api, apiRequest);
     }
 
-    @Test
-    public void category() throws Exception {
-        EasyMock.expect(apiRequest.call("/app/category")).andReturn("[{\"id\" : \"100\"}]");
-        EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
-        EasyMock.replay(api, apiRequest);
-        AppApi appApi = new AppApi(api);
-        ArrayList<AppCategoryModel> cates = appApi.category();
-        assertEquals(100, cates.get(0).getId().intValue());
-        EasyMock.verify(api, apiRequest);
-    }
 
     @Test
     public void upload() throws Exception {
         Map<String, String> params = new HashMap<>();
-        params.put("app_type", String.valueOf(1));
+        params.put("type", String.valueOf(1));
         params.put("ios_url", "http://test");
         params.put("android_url", "");
 
-        EasyMock.expect(apiRequest.call("/app", "POST", params)).andReturn("{\"errcode\" : 0}");
+        EasyMock.expect(apiRequest.call("/apps/upload", "POST", params)).andReturn("{\"errcode\" : 0}");
         EasyMock.expect(api.getApiRequest()).andReturn(apiRequest);
         EasyMock.replay(api, apiRequest);
         AppApi appApi = new AppApi(api);

@@ -15,10 +15,12 @@ import java.util.Map;
 
 public class CreativeApi extends AbstractApi
 {
-    private static final String URI_READING = "/creatives/info/%d";
-    private static final String URI_LIST    = "/creatives/search";
+    private static final String URI_READING = "/creatives/%d";
+    private static final String URI_LIST    = "/creatives";
     private static final String URI_CREATE  = "/creatives";
-    private static final String URI_FEEDS   = "/creatives/feeds";
+    private static final String URI_INDUSTRY   = "/creatives/industry";
+    private static final String URI_HYPERLINK   = "/creatives/hyperlink";
+    private static final String URI_UPDATE_STATUS   = "/creatives/status/%d";
     private static final String URI_UPDATE  = "/creatives/%d";
     private static final String URI_DELETE  = "/creatives/%d";
     private static final String URI_CREATE_TAG = "/tags";
@@ -64,18 +66,12 @@ public class CreativeApi extends AbstractApi
     }
 
 
-    public FeedModel feeds(int page, int pageSize) throws ApiException, IOException {
-        String scheme = URI_FEEDS .concat( "?page=" + page + "&page_size=" + pageSize);
-        String data = api.getApiRequest().call(scheme);
-        return JSON.parseObject(data, FeedModel.class);
-    }
-
 
     public  HashMap<String, String> update(int creativeId, String status) throws ApiException, IOException {
         Map<String, String> params = new HashMap<>();
-        params.put("update_status", "1");
         params.put("status", status);
-        String data = api.getApiRequest().call(String.format(URI_UPDATE, creativeId), "PUT", params);
+
+        String data = api.getApiRequest().call(String.format(String.format(URI_UPDATE_STATUS, creativeId), creativeId), "PUT", params);
         return JSON.parseObject(data, new TypeReference<HashMap<String, String>>(){});
     }
 
@@ -108,6 +104,20 @@ public class CreativeApi extends AbstractApi
         params.put("app_id", String.valueOf(appId));
         String data = api.getApiRequest().call(URI_CREATE_TAG, "POST", params);
         return JSON.parseObject(data, new TypeReference<HashMap<String, Object>>(){});
+    }
+
+
+    public String getIndustry() throws ApiException, IOException {
+        return  api.getApiRequest().call(URI_INDUSTRY);
+    }
+
+    public CreativeEntity createHyperlink(String url, String displayName) throws  ApiException, IOException,
+            IllegalAccessException {
+        Map<String, String> params = new HashMap<>();
+        params.put("url", url);
+        params.put("display_name", displayName);
+        String data = api.getApiRequest().call(URI_HYPERLINK, "POST", params);
+        return JSON.parseObject(data, CreativeEntity.class);
     }
 
 }

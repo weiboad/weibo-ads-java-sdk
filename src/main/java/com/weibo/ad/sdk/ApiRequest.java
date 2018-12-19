@@ -55,11 +55,9 @@ public class ApiRequest
         OkHttpClient client = new OkHttpClient.Builder()
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                //.connectTimeout(connectTimeout, TimeUnit.SECONDS)
-                //修改时间为毫秒,偶现协议代理的问题
-                .connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
-                .sslSocketFactory(SSLSocketClient.getSSLSocketFactory())//配置
-                .hostnameVerifier(SSLSocketClient.getHostnameVerifier())//配置
+                .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                .sslSocketFactory(SSLSocketClient.getSSLSocketFactory())
+                .hostnameVerifier(SSLSocketClient.getHostnameVerifier())
                 .build();
        httpClient = client;
         return httpClient;
@@ -69,60 +67,23 @@ public class ApiRequest
         return call(scheme, "GET");
     }
 
-    public String call(String scheme, String method) throws ApiException, IOException {
-        if(api.getBaseUrl() != null && api.getBaseUrl().contains("http")){
-            BASE_URL = api.getBaseUrl();
-        }
-        StringBuilder stringBuilder = new StringBuilder(BASE_URL);
-        stringBuilder.append(scheme);
-        Long customerId = api.getCustomerId();
-        if (customerId > 0) {
-            if (scheme.contains("?")) {
-                stringBuilder.append("&customer_id=").append(customerId);
-            } else {
-                stringBuilder.append("?customer_id=").append(customerId);
-            }
-        }
-        Long operatorId = api.getOperatorId();
-        if (operatorId > 0) {
-            if (stringBuilder.toString().contains("?")) {
-                stringBuilder.append("&operator_id=").append(operatorId);
-            } else {
-                stringBuilder.append("?operator_id=").append(operatorId);
-            }
-        }
 
-        String url = stringBuilder.toString();
-        System.out.printf("api request url:%s\n", url);
-        Request request = new Request.Builder()
-                .addHeader("Authorization", "Bearer " + api.getToken())
-                .addHeader("Connection", "close")
-                .addHeader("Host","api.biz.weibo.com")
-                .url(url)
-                .method(method, null)
-                .build();
+
+    public String call(String scheme, String method) throws ApiException, IOException {
 
         Response response = null;
-        String ret = "";
-        int httpCode = 500;
+        String ret;
         try {
-            response = getHttpClient().newCall(request).execute();
+            response = getHttpClient().newCall(buildCustRequest(buildUrl(scheme), method, null)).execute();
             if (response.isSuccessful()) {
                 ret = response.body().string();
-                httpCode = 200;
-                System.out.printf("api request  result:%s\n", ret);
                 return ret;
             } else {
                 throw new ApiException(response.code(), response.body().string());
             }
         }finally{
-
             if(response != null) {
-
                 response.body().close();
-                System.out.println("response is not null");
-            }else {
-                System.out.println("response is null");
             }
         }
     }
@@ -131,7 +92,7 @@ public class ApiRequest
             IllegalAccessException {
         RequestBody requestBody = Util.buildRequestBody(entity);
         return call(scheme, method, requestBody);
-    };
+    }
 
     public String call(String scheme, String method, Map<String, String> map) throws  ApiException,IOException {
         FormBody.Builder builder = new FormBody.Builder();
@@ -144,6 +105,46 @@ public class ApiRequest
 
     public String call(String scheme, String method, RequestBody requestBody) throws ApiException, IOException {
 
+
+        Response response = null;
+        String ret;
+        Request request = buildCustRequest(buildUrl(scheme), method, requestBody);
+        //获取请求参数中的paramMap
+        Map<String,Object> paramMap = new HashMap<>();
+        if (request.body() instanceof FormBody) {
+            FormBody body = (FormBody) request.body();
+            for (int i = 0; i < body.size(); i++) {
+                paramMap.put(body.encodedName(i),body.encodedValue(i));
+            }
+        }
+        try {
+            response = getHttpClient().newCall(request).execute();
+            if (response.isSuccessful()) {
+                ret = response.body().string();
+                return ret;
+            } else {
+                throw new ApiException(response.code(), response.body().string());
+            }
+        }  finally {
+            if(response != null) {
+                response.body().close();
+            }
+        }
+    }
+
+
+    private Request buildCustRequest(String url, String method, RequestBody requestBody) {
+        return new Request.Builder()
+                .addHeader("Authorization", "Bearer " + api.getToken())
+                .addHeader("Connection", "close")
+                .addHeader("Host","api.biz.weibo.com")
+                .addHeader("Accept", "application/json,application/text+gw2.0")
+                .url(url)
+                .method(method, requestBody)
+                .build();
+    }
+
+    private String buildUrl(String scheme) {
         if(api.getBaseUrl() != null && api.getBaseUrl().contains("http")){
             BASE_URL = api.getBaseUrl();
         }
@@ -165,45 +166,7 @@ public class ApiRequest
                 stringBuilder.append("?operator_id=").append(operatorId);
             }
         }
-
-        String url = stringBuilder.toString();
-        System.out.printf("api request url:%s\n", url);
-
-        Request request = new Request.Builder()
-                .addHeader("Authorization", "Bearer " + api.getToken())
-                .addHeader("Connection", "close")//默认是短连接
-                .addHeader("Host","api.biz.weibo.com")
-                .url(url)
-                .method(method, requestBody)
-                .build();
-
-
-        Response response = null;
-        String ret;
-
-        //获取请求参数中的paramMap
-        Map<String,Object> paramMap = new HashMap<>();
-        if (request.body() instanceof FormBody) {
-            FormBody body = (FormBody) request.body();
-            for (int i = 0; i < body.size(); i++) {
-                paramMap.put(body.encodedName(i),body.encodedValue(i));
-            }
-        }
-        try {
-            response = getHttpClient().newCall(request).execute();
-            if (response.isSuccessful()) {
-                ret = response.body().string();
-
-                return ret;
-            } else {
-                throw new ApiException(response.code(), response.body().string());
-            }
-        }  finally {
-
-            if(response != null) {
-                response.body().close();
-            }
-        }
+        return stringBuilder.toString();
     }
 
 }

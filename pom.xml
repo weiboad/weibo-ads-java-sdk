@@ -6,7 +6,7 @@
 
   <groupId>com.weibo.ad.sdk</groupId>
   <artifactId>ads-sdk</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
 
   <properties>
     <project.sourceEncoding>UTF-8</project.sourceEncoding>
@@ -28,13 +28,6 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
-    </dependency>
-
-    <!--接入java的ragnar-->
-    <dependency>
-      <groupId>com.weibo.ad.adinf</groupId>
-      <artifactId>ragnar-java-sdk</artifactId>
-      <version>1.0.5.20</version>
     </dependency>
 
     <dependency>
@@ -69,12 +62,10 @@
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>

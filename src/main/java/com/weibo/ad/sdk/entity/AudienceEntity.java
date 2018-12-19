@@ -30,6 +30,9 @@ public class AudienceEntity extends AbstractEntity
     @JSONField(name = "is_dug")
     private Integer isDug;
 
+    @JSONField(name = "is_md5")
+    private Integer isMd5;
+
     @JSONField(name = "is_using")
     private Integer isUsing;
 
@@ -50,6 +53,9 @@ public class AudienceEntity extends AbstractEntity
 
     @JSONField(name = "created_at")
     private String createdAt;
+
+    @JSONField(name = "updated_at")
+    private String updatedAt;
 
 
     public Integer getId() {
@@ -186,5 +192,21 @@ public class AudienceEntity extends AbstractEntity
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getIsMd5() {
+        return isMd5;
+    }
+
+    public void setIsMd5(Integer isMd5) {
+        this.isMd5 = isMd5;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
